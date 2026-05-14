@@ -11,13 +11,22 @@ import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
 import { useApp } from "@/lib/hooks";
 import Head from "next/head";
+import pako from "pako";
+
+function decodeSamlRequest(raw: string): string {
+  const bytes = Uint8Array.from(atob(raw), (c) => c.charCodeAt(0));
+  // HTTP-POST binding: bytes are already raw XML.
+  // HTTP-Redirect binding: bytes are raw DEFLATE-compressed XML.
+  if (bytes[0] === 0x3c /* '<' */) return new TextDecoder().decode(bytes);
+  return pako.inflateRaw(bytes, { to: "string" });
+}
 
 export default function Page() {
   const router = useRouter();
   const app = useApp(router.query.id as string);
 
   const samlRequest = router.query.SAMLRequest
-    ? atob(router.query.SAMLRequest as string)
+    ? decodeSamlRequest(router.query.SAMLRequest as string)
     : "";
 
   return (
