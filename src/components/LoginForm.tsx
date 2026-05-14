@@ -92,8 +92,10 @@ export function LoginForm({
       );
 
       const fmt = "YYYY-MM-DDTHH:mm:ss[Z]";
-      const now = moment.utc(new Date()).add(-1, "hour").format(fmt);
-      const expire = moment.utc(new Date()).add(1, "hour").format(fmt);
+      const t = new Date();
+      const now = moment.utc(t).format(fmt);
+      const notBefore = moment.utc(t).subtract(5, "minutes").format(fmt);
+      const expire = moment.utc(t).add(1, "hour").format(fmt);
 
       setAssertion(
         await encodeAssertion(key, {
@@ -109,6 +111,7 @@ export function LoginForm({
           sessionId: sessionId,
           sessionIndex: crypto.randomUUID(),
           now,
+          notBefore,
           expire,
         }),
       );
