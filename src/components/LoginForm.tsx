@@ -91,20 +91,25 @@ export function LoginForm({
         ["sign"],
       );
 
-      const now = moment(new Date()).add(-1, "hour");
-      const expire = moment(new Date()).add(1, "hour");
+      const fmt = "YYYY-MM-DDTHH:mm:ss[Z]";
+      const now = moment.utc(new Date()).add(-1, "hour").format(fmt);
+      const expire = moment.utc(new Date()).add(1, "hour").format(fmt);
 
       setAssertion(
         await encodeAssertion(key, {
           assertionId: crypto.randomUUID(),
+          responseId: crypto.randomUUID(),
           idpEntityId: appIdpEntityId(app),
+          spEntityId: app.spEntityId!,
+          acsUrl: app.spAcsUrl!,
           subjectId: user.email,
+          email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          spEntityId: app.spEntityId!,
           sessionId: sessionId,
-          now: now.format(),
-          expire: expire.format(),
+          sessionIndex: crypto.randomUUID(),
+          now,
+          expire,
         }),
       );
     })();
