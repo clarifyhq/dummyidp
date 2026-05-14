@@ -99,8 +99,10 @@ export function LoginForm({
 
       setAssertion(
         await encodeAssertion(key, {
-          assertionId: crypto.randomUUID(),
-          responseId: crypto.randomUUID(),
+          // SAML IDs are xs:ID / xs:NCName — must start with a letter or
+          // underscore. UUIDs starting with a digit fail XSD validation.
+          assertionId: `_${crypto.randomUUID()}`,
+          responseId: `_${crypto.randomUUID()}`,
           idpEntityId: appIdpEntityId(app),
           spEntityId: app.spEntityId!,
           acsUrl: app.spAcsUrl!,
